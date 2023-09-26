@@ -1,4 +1,4 @@
-package com.project.pet.user.model.controller;
+package com.project.pet.user.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
