@@ -5,6 +5,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -37,7 +38,9 @@ public class User implements UserDetails {
     //UserDetail 메소드
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(() -> role.getValue()); // key: ROLE_권한
+        return authorities;
     }
 
     @Override
