@@ -16,8 +16,8 @@ public class UserCreateRequest {
     @Length(max = 30)
     private String loginId;
 
-    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@#$%^&+=]).{12,20}$",
-            message = "알파벳, 숫자, 특수문자가 최소 1개 이상 필요하며 12 ~ 20 이내로 작성해주세요.")
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[~!@#$%^&*()_+|<>?:{}])[A-Za-z\\d~!@#$%^&*()_+|<>?:{}]{10,20}$",
+            message = "알파벳, 숫자, 특수문자가 각각 1개 이상 들어가게 10 ~ 20 이내로 작성해주세요.")
     private String password;
 
     @Email

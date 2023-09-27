@@ -23,7 +23,7 @@
     @RequiredArgsConstructor
     //@EnableGlobalMethodSecurity(securedEnabled = true)
     public class SecurityConfig {
-        private final String[] allowdUrls = { "", "/", "api/ping", "/sign-in", "/sing-up"};
+
         private final JwtTokenProvider jwtTokenProvider;
         /** 따로 jwt security를 분리하려다가 jwtFilter만 추가하므로 통합 filter 설정으로 결정
          */
@@ -43,8 +43,10 @@
                     .sessionManagement(session -> session.sessionCreationPolicy(STATELESS)) //session, cookie를 사용하지 않으므로 stateless 설정
                     .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),  UsernamePasswordAuthenticationFilter.class)
                     .authorizeHttpRequests(auth ->
-                            auth.requestMatchers(allowdUrls).permitAll()
-                                    .anyRequest().authenticated()
+                            auth.requestMatchers("/api/users/sign-up").permitAll()
+                                    .requestMatchers("/api/users/sign-in").permitAll()
+                                    .requestMatchers("/", "/api/users/ping").permitAll()
+                                    .anyRequest().permitAll()
                     )
                     .build();
         }
