@@ -3,11 +3,13 @@ package com.project.pet.user.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -36,8 +38,11 @@ public class User implements UserDetails {
 
     private Long manner;
 
-    @Enumerated(value = EnumType.STRING) // 추후 Enum 대신 List<String> 형식으로 변환하는 것이 더 효율적으로 보임.
-    private Role role;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<String> roles = new ArrayList<>();
+
+
 
     // 패스워드 암호화, 복화호 확인
     public void encodePassword(PasswordEncoder passwordEncoder){
@@ -51,9 +56,8 @@ public class User implements UserDetails {
     //UserDetail 메소드
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(() -> role.getValue()); // key: ROLE_권한
-        return authorities;
+        return this.roles.stream()
+                .map(SimpleGrantedAuthority::new).toList();
     }
 
     @Override

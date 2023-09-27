@@ -1,5 +1,6 @@
 package com.project.pet.user.controller;
 
+import com.project.pet.auth.dto.TokenInfo;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
 import com.project.pet.user.service.UserService;
@@ -26,10 +27,10 @@ public class UserController {
         return ResponseEntity.ok().body("sign-up success");
     }
     @PostMapping("/sign-in") // 로그인은 보안이 중요하므로 get 대신 post 사용(url에 정보 노출 위험 제거) + control url로 의미 명확하게 전달
-    public ResponseEntity<String> userSignIn(@Valid @RequestBody UserLoginRequest dto){
-        userService.signIn(dto);
+    public ResponseEntity<TokenInfo> userSignIn(@Valid @RequestBody UserLoginRequest dto){
+        TokenInfo tokenInfo = userService.signIn(dto);
 
-        return ResponseEntity.ok().body("sign-in success");
+        return ResponseEntity.ok().body(tokenInfo);
     }
 
     @GetMapping("/ping") // api test 용도
