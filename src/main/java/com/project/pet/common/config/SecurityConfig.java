@@ -47,7 +47,7 @@
                     .authorizeHttpRequests(auth ->
                             auth.requestMatchers("/api/users/sign-up").permitAll()
                                     .requestMatchers("/api/users/sign-in").permitAll()
-                                    .requestMatchers("/").permitAll()
+                                    .requestMatchers("/", "").permitAll()
                                     .anyRequest().authenticated()
                     )
                     .build();
