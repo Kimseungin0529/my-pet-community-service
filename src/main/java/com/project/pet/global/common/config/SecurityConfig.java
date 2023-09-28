@@ -1,16 +1,13 @@
-    package com.project.pet.common.config;
+    package com.project.pet.global.common.config;
 
-    import com.project.pet.auth.JwtAuthenticationFilter;
-    import com.project.pet.auth.JwtTokenProvider;
+    import com.project.pet.global.auth.JwtAuthenticationFilter;
+    import com.project.pet.global.auth.JwtTokenProvider;
     import lombok.RequiredArgsConstructor;
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
-    import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
     import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
     import org.springframework.security.config.annotation.web.builders.HttpSecurity;
     import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-    import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
-    import org.springframework.security.config.http.SessionCreationPolicy;
     import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.security.web.SecurityFilterChain;

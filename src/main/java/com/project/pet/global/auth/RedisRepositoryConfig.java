@@ -1,4 +1,4 @@
-package com.project.pet.auth;
+package com.project.pet.global.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;

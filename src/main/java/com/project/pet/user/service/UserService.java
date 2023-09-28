@@ -1,7 +1,7 @@
 package com.project.pet.user.service;
 
-import com.project.pet.auth.JwtTokenProvider;
-import com.project.pet.auth.dto.TokenInfo;
+import com.project.pet.global.auth.JwtTokenProvider;
+import com.project.pet.global.auth.dto.TokenInfo;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
 import com.project.pet.user.model.User;
@@ -10,9 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

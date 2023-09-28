@@ -1,6 +1,6 @@
 package com.project.pet.user.controller;
 
-import com.project.pet.auth.dto.TokenInfo;
+import com.project.pet.global.auth.dto.TokenInfo;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
 import com.project.pet.user.service.UserService;
@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Request;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

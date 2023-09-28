@@ -1,4 +1,4 @@
-package com.project.pet.auth;
+package com.project.pet.global.auth;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

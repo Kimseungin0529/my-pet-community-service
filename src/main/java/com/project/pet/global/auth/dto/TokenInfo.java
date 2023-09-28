@@ -1,4 +1,4 @@
-package com.project.pet.auth.dto;
+package com.project.pet.global.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
