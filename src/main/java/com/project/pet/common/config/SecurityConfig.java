@@ -21,7 +21,7 @@
     @Configuration
     @EnableWebSecurity
     @RequiredArgsConstructor
-    //@EnableGlobalMethodSecurity(securedEnabled = true)
+    @EnableGlobalMethodSecurity(securedEnabled = true)
     public class SecurityConfig {
 
         private final JwtTokenProvider jwtTokenProvider;
@@ -41,12 +41,14 @@
                     .httpBasic(basic -> basic.disable()) // 로그인폼형식 -> authorization 헤더에 아이디와 비밀번호를 넣는 위험한 방식이 있다 정도로만 알고 가자.
                     // Rest API 쓰므로 사용x, HTTP Basic Authentication이 비활성화되고, JWT 또는 다른 인증 방식을 대신 사용
                     .sessionManagement(session -> session.sessionCreationPolicy(STATELESS)) //session, cookie를 사용하지 않으므로 stateless 설정
+
                     .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),  UsernamePasswordAuthenticationFilter.class)
+                    // JwtAuthenticationFilter를 UsernamePasswordAuthentictaionFilter 전에 적용시킨다.
                     .authorizeHttpRequests(auth ->
                             auth.requestMatchers("/api/users/sign-up").permitAll()
                                     .requestMatchers("/api/users/sign-in").permitAll()
-                                    .requestMatchers("/", "/api/users/ping").permitAll()
-                                    .anyRequest().permitAll()
+                                    .requestMatchers("/").permitAll()
+                                    .anyRequest().authenticated()
                     )
                     .build();
         }

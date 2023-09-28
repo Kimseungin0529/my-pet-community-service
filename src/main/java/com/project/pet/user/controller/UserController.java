@@ -6,6 +6,7 @@ import com.project.pet.user.dto.UserLoginRequest;
 import com.project.pet.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Request;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -27,14 +28,17 @@ public class UserController {
         return ResponseEntity.ok().body("sign-up success");
     }
     @PostMapping("/sign-in") // 로그인은 보안이 중요하므로 get 대신 post 사용(url에 정보 노출 위험 제거) + control url로 의미 명확하게 전달
-    public ResponseEntity<TokenInfo> userSignIn(@Valid @RequestBody UserLoginRequest dto){
+    public ResponseEntity<?> userSignIn(@Valid @RequestBody UserLoginRequest dto){
         TokenInfo tokenInfo = userService.signIn(dto);
 
-        return ResponseEntity.ok().body(tokenInfo);
+        return ResponseEntity.ok().body(tokenInfo.getAccessToken());
     }
 
     @GetMapping("/ping") // api test 용도
-    public String ping(){
+    public String ping(Request request){
+        String authorizaion = request.getHeader("Authorizaion");
+
+
         return "pong";
     }
 
