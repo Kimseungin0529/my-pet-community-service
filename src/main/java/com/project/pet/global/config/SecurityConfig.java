@@ -1,4 +1,4 @@
-    package com.project.pet.global.common.config;
+    package com.project.pet.global.config;
 
     import com.project.pet.global.auth.JwtAuthenticationFilter;
     import com.project.pet.global.auth.JwtTokenProvider;

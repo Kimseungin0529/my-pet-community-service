@@ -1,4 +1,4 @@
-package com.project.pet.global.auth;
+package com.project.pet.global.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -23,7 +23,6 @@ public class RedisRepositoryConfig {
         return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
     }
 
-    // redis-cli 사용을 위한 설정
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
