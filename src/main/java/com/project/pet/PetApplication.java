@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class PetApplication {
 
 	public static void main(String[] args) {
+		// feat/user 에서 commit contribution 기여 test
 		SpringApplication.run(PetApplication.class, args);
 	}
 
