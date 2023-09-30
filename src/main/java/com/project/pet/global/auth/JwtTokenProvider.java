@@ -40,6 +40,19 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
+    public String extractUsernameFromToken(String token) {
+
+        String jwtToken = token.split(" ")[1].trim();
+
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(jwtToken)
+                .getBody();
+        System.out.println("sub -> " + claims.get("sub", String.class));
+        return claims.get("sub", String.class); // "sub" 키의 값을 추출
+    }
+
     public TokenInfo generateToken(Authentication authentication) { // jwt token 생성
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)

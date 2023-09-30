@@ -63,8 +63,12 @@ public class UserService  {
         return tokenInfo;
     }
 
-    public void logout(UserLogoutRequest dto, String accessToken) {
-        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
-        String name = authentication.getName();
+    public void logout(UserLogoutRequest dto) {
+        String refreshToken = dto.getRefreshToken();
+        String findUserId = jwtTokenProvider.extractUsernameFromToken(refreshToken);
+        if( redisTemplate.opsForValue().get("RT:" + findUserId) != null){
+            redisTemplate.delete("RT:" + findUserId);
+        }
+        
     }
 }
