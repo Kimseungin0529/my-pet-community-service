@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class PetApplication {
 
 	public static void main(String[] args) {
+		//2222
 		SpringApplication.run(PetApplication.class, args);
 	}
 
