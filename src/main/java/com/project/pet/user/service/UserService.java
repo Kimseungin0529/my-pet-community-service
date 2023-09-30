@@ -4,6 +4,7 @@ import com.project.pet.global.auth.JwtTokenProvider;
 import com.project.pet.global.auth.dto.TokenInfo;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
+import com.project.pet.user.dto.UserLogoutRequest;
 import com.project.pet.user.model.User;
 import com.project.pet.user.repositoy.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -60,5 +61,10 @@ public class UserService  {
                 .set("RT:" + authentication.getName(), tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
 
         return tokenInfo;
+    }
+
+    public void logout(UserLogoutRequest dto, String accessToken) {
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+        String name = authentication.getName();
     }
 }

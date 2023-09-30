@@ -50,7 +50,7 @@ public class JwtTokenProvider {
         String accessToken = createAccessToken(authentication, authorities, now);
 
         // Refresh Token 생성
-        String refreshToken = createRefreshToken(now);
+        String refreshToken = createRefreshToken(authentication, now);
 
         //log.info("accessToken = {}", accessToken);
         return TokenInfo.builder()
@@ -61,8 +61,9 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    private String createRefreshToken(long now) {
+    private String createRefreshToken(Authentication authentication, long now) {
         String refreshToken = BEARER_PREFIX + Jwts.builder()
+                .setSubject(authentication.getName())
                 .setExpiration(new Date(now + REFRESH_TOKEN_VALIDATION_SECOND))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();

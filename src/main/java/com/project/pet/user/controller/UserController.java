@@ -3,11 +3,13 @@ package com.project.pet.user.controller;
 import com.project.pet.global.auth.dto.TokenInfo;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
+import com.project.pet.user.dto.UserLogoutRequest;
 import com.project.pet.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Request;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,6 +33,14 @@ public class UserController {
         TokenInfo tokenInfo = userService.signIn(dto);
 
         return ResponseEntity.ok().body(tokenInfo);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> userLogout(@RequestBody UserLogoutRequest dto,
+                                        @RequestHeader(name = "Authorization") String act){
+        userService.logout(dto, act);
+
+        return ResponseEntity.ok().body("logout success");
     }
 
     @GetMapping("/ping") // api test 용도
