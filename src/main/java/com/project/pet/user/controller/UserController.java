@@ -30,7 +30,7 @@ public class UserController {
     public ResponseEntity<?> userSignIn(@Valid @RequestBody UserLoginRequest dto){
         TokenInfo tokenInfo = userService.signIn(dto);
 
-        return ResponseEntity.ok().body(tokenInfo.getAccessToken());
+        return ResponseEntity.ok().body(tokenInfo);
     }
 
     @GetMapping("/ping") // api test 용도
