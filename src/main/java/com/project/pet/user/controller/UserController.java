@@ -45,7 +45,7 @@ public class UserController {
     @GetMapping("/ping") // api test 용도
     public String ping(Request request){
         String authorizaion = request.getHeader("Authorizaion");
-
+        //contribution setting 설정 
 
         return "pong";
     }
