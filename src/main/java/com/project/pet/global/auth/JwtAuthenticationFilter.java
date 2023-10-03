@@ -23,14 +23,18 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    // Request로 들어오는 Jwt Token의 유효성을 검증하는 filter를 filterChain에 등록합니다.
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response
             , FilterChain filterChain) throws ServletException, IOException {
 
         String token = resolveToken(request);
         // Authorization 헤더에 있는 jwt 가져오기
-        if(token != null && jwtTokenProvider.validateToken(token)){
+        System.out.println("필터 검사 시작. 해당 글 이후, validation에 문제 발생한다면 여기다.");
+        if(token != null && jwtTokenProvider.validateToken(token) && !jwtTokenProvider.checkLogoutToken("Bearer "+token)){
             //토큰이 존재하면서 유효하다면 Authentication 객체 생성
+            System.out.println("valdationToken 정상 호출");
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             System.out.println("authentication : " + authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);

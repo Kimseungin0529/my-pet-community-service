@@ -2,12 +2,14 @@ package com.project.pet.user.service;
 
 import com.project.pet.global.auth.JwtTokenProvider;
 import com.project.pet.global.auth.dto.TokenInfo;
+import com.project.pet.global.common.entity.RedisUtil;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
 import com.project.pet.user.dto.UserLogoutRequest;
 import com.project.pet.user.model.User;
 import com.project.pet.user.repositoy.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
-@Service
+@Service @Slf4j
 @RequiredArgsConstructor
 public class UserService  {
 
@@ -25,7 +27,7 @@ public class UserService  {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisTemplate redisTemplate;
+    private final RedisUtil redisUtil;
 
 
 
@@ -53,21 +55,28 @@ public class UserService  {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication); // 토큰 정보 발급
 
+
+        //log.info("Authentication = {}", authentication);
         /**
          * redis에 refresh token 저장! como에서는 jpa data를 활용한 repository를 만들어 저장했지만 여기서는
          * redisTemplate이 제공하는 set 메소드를 통해 직접 저장. 각 방법에 장단점이 있음. 여기서는 빠른 사용을 위해 해당 방법 채택
          */
-        redisTemplate.opsForValue()
+        redisUtil.getRedisTemplate().opsForValue()
                 .set("RT:" + authentication.getName(), tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
 
         return tokenInfo;
     }
 
-    public void logout(UserLogoutRequest dto) {
+    public void logout(UserLogoutRequest dto, String token) {
         String refreshToken = dto.getRefreshToken();
         String findUserId = jwtTokenProvider.extractUsernameFromToken(refreshToken);
-        if( redisTemplate.opsForValue().get("RT:" + findUserId) != null){
-            redisTemplate.delete("RT:" + findUserId);
+        if( redisUtil.getRedisTemplate().opsForValue().get("RT:" + findUserId) != null){
+            //act 블랙리스트 저장 -> act 저장 - ("AT:" + name, act, act 만료기간, TimeUnit.MILLISECONDS) /
+            long exp = jwtTokenProvider.extractExpirationTimeFromToken(token);
+            
+            // logout -> act 블랙리스트 저장, rft 삭제
+            redisUtil.getRedisBlackTemplate().opsForValue().set("AT:" + findUserId, token, exp, TimeUnit.MILLISECONDS);
+            redisUtil.getRedisTemplate().delete("RT:" + findUserId);
         }
         
     }

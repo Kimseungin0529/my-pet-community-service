@@ -38,9 +38,14 @@
                     .httpBasic(basic -> basic.disable()) // 로그인폼형식 -> authorization 헤더에 아이디와 비밀번호를 넣는 위험한 방식이 있다 정도로만 알고 가자.
                     // Rest API 쓰므로 사용x, HTTP Basic Authentication이 비활성화되고, JWT 또는 다른 인증 방식을 대신 사용
                     .sessionManagement(session -> session.sessionCreationPolicy(STATELESS)) //session, cookie를 사용하지 않으므로 stateless 설정
-
                     .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),  UsernamePasswordAuthenticationFilter.class)
-                    // JwtAuthenticationFilter를 UsernamePasswordAuthentictaionFilter 전에 적용시킨다.
+                    /**
+                     * JwtAuthenticationFilter를 UsernamePasswordAuthentictaionFilter 전에 적용시킨다.
+                     * 클라이언트가 Spring Security를 적용한 어플리케이션에 리소스를 요청할 때 접근 권한이 없는 경우 기본적으로 Username and Password
+                     * Authentication Mechanism을 사용해 로그인 폼으로 보내지게 되는데 그 역할을 하는 필터는 UsernamePasswordAuthenticationFilter이다.
+                     * 내가 개발하고 있는 Rest API Server는 Username and Password Authentication Mechanism을 사용하지 않을 것이기 때문에 UsernamePasswordAuthenticationFilter
+                     * 이전에 사용자 정의 필터인 JwtAuthenticationFilter에서 인증 및 권한처리가 필요했다.
+                     */
                     .authorizeHttpRequests(auth ->
                             auth.requestMatchers("/api/users/sign-up").permitAll()
                                     .requestMatchers("/api/users/sign-in").permitAll()

@@ -1,6 +1,8 @@
 package com.project.pet.global.auth;
 
 import com.project.pet.global.auth.dto.TokenInfo;
+import com.project.pet.global.common.entity.RedisUtil;
+import lombok.Data;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import io.jsonwebtoken.*;
@@ -34,6 +36,8 @@ public class JwtTokenProvider {
     private Key key;
     private final String BEARER_PREFIX = "Bearer ";
 
+    private final RedisUtil redisUtil;
+
     @PostConstruct
     protected void init() { // base64로 인코딩하여 문자열값 secretKey에 저장
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
@@ -49,8 +53,23 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(jwtToken)
                 .getBody();
-        System.out.println("sub -> " + claims.get("sub", String.class));
+        //System.out.println("sub -> " + claims.get("sub", String.class));
         return claims.get("sub", String.class); // "sub" 키의 값을 추출
+    }
+
+    public long extractExpirationTimeFromToken(String token) {
+
+        String jwtToken = token.split(" ")[1].trim();
+
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(jwtToken)
+                .getBody();
+        Date date = claims.get("exp", Date.class);
+        long time = date.getTime();
+
+        return time; // act 만료기간 long 타입으로 넘기기
     }
 
     public TokenInfo generateToken(Authentication authentication) { // jwt token 생성
@@ -65,7 +84,6 @@ public class JwtTokenProvider {
         // Refresh Token 생성
         String refreshToken = createRefreshToken(authentication, now);
 
-        //log.info("accessToken = {}", accessToken);
         return TokenInfo.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
@@ -81,8 +99,6 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        log.info("setExpiration = {}", new Date(now + REFRESH_TOKEN_VALIDATION_SECOND));
-        log.info("key, SignatureAlgorithm.HS256 = {}", key, SignatureAlgorithm.HS256);
         return refreshToken;
     }
 
@@ -94,11 +110,6 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        log.info("authorities = {}", authorities);
-        log.info("setSubject = {}", authentication.getName());
-        log.info("setExpiration = {}", new Date(now + ACCESS_TOKEN_VALIDATION_SECOND));
-        log.info("key, SignatureAlgorithm.HS256 = {}", key, SignatureAlgorithm.HS256);
-
         return accessToken;
     }
 
@@ -106,7 +117,7 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String accessToken) {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
-
+        log.info("claims = {}", claims);
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
@@ -135,7 +146,7 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {  // 토큰의 유효성 검증을 수행
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            System.out.println("토큰이 검증됐습니다!");
+
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("잘못된 JWT 서명입니다.");
@@ -146,8 +157,13 @@ public class JwtTokenProvider {
         } catch (IllegalArgumentException e) {
             log.info("JWT 토큰이 잘못되었습니다.");
         } catch (Exception e) {
-            log.info("새로운 JWT 토큰 오류입니다.");
+            log.info("새로운 JWT 토큰 오류입니다.@@");
         }
         return false;
+    }
+    public boolean checkLogoutToken(String token){
+        Boolean result = redisUtil.getRedisTemplate().hasKey("AT:" + extractUsernameFromToken(token));
+        log.info("로그아웃한 회원인지 확인하는 중입니다.");
+        return result;
     }
 }
