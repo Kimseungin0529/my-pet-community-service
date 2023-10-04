@@ -2,9 +2,9 @@ package com.project.pet.global.common.exception;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 @Getter
-@RequiredArgsConstructor
 public class CustomException extends RuntimeException{
 
     int errorCode; // 개발자 내에서 지정한 에러코드
@@ -16,7 +16,6 @@ public class CustomException extends RuntimeException{
         this.errorType = errorType;
         this.detail = detail;
     }
-
     /** Custom Exception 사용법
      * 주로 발생하는 에러4xx, 5xx 추상 정적 클래스로 생성하므로써 에러 종류를 크게 나눔.
      * 추상 클래스 상속을 통해 구체적인 커스템 예외를 작성하면 된다.
@@ -59,9 +58,5 @@ public class CustomException extends RuntimeException{
             super(errorType, detail);
         }
     }
-
-
-
-
 
 }
