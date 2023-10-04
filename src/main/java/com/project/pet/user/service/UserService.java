@@ -15,11 +15,13 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
 @Service @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class UserService  {
 
     private final UserRepository userRepository;
@@ -66,9 +68,8 @@ public class UserService  {
         return tokenInfo;
     }
 
-    public void logout(UserLogoutRequest dto, String token) {
-        String refreshToken = dto.getRefreshToken();
-        String findUserId = jwtTokenProvider.extractUsernameFromToken(refreshToken);
+    public void logout(String token) {
+        String findUserId = jwtTokenProvider.extractUsernameFromToken(token);
         if( redisTemplete.opsForValue().get("RT:" + findUserId) != null){
             //act 블랙리스트 저장 -> act 저장 - ("AT:" + name, act, act 만료기간, TimeUnit.MILLISECONDS) /
             long exp = jwtTokenProvider.extractExpirationTimeFromToken(token);
@@ -76,6 +77,11 @@ public class UserService  {
             // logout -> act 블랙리스트 저장, rft 삭제
             redisTemplete.opsForValue().set("AT:" + findUserId, token, exp, TimeUnit.MILLISECONDS);
             redisTemplete.delete("RT:" + findUserId);
+        }
+        else{
+            /**
+             * 인증되지 않은 사용자라는 예외처리 필요
+             */
         }
         
     }

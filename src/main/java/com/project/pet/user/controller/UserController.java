@@ -32,14 +32,19 @@ public class UserController {
     public ResponseEntity<?> userSignIn(@Valid @RequestBody UserLoginRequest dto){
         TokenInfo tokenInfo = userService.signIn(dto);
 
-        return ResponseEntity.ok().body(tokenInfo);
+        return ResponseEntity.ok().body(tokenInfo.getAccessToken());
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> userLogout(@RequestBody UserLogoutRequest dto,
-                                        @RequestHeader(name = "Authorization") String token){
-        userService.logout(dto, token);
+    public ResponseEntity<?> userLogout(@RequestHeader(name = "Authorization") String token){
+        userService.logout(token);
 
+        /**
+         * 로그아웃 기능 수정
+         * 1. rft은 주고 받지 않는다. 오직 서버 측에서만 저장한다. 이유 -> 어차피 act 탈취당한다면 rtf(body값이더라도)도 탈취당할 수 있다! 그렇기에 구현 상,
+         * 비용 대비 효과가 좋지 않으므로 act이 만료됐다면 서버 측에 저장된 rft가 유효하기만 하다면 act 재발급으로 진행.
+         * 보안은 다른 방법으로 추후 강화.
+         */
         return ResponseEntity.ok().body("logout success");
     }
 
