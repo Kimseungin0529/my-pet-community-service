@@ -1,8 +1,8 @@
 package com.project.pet.global.auth;
 
 import com.project.pet.global.auth.dto.TokenInfo;
-import com.project.pet.global.common.entity.RedisUtil;
 import lombok.Data;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import io.jsonwebtoken.*;
@@ -36,7 +36,7 @@ public class JwtTokenProvider {
     private Key key;
     private final String BEARER_PREFIX = "Bearer ";
 
-    private final RedisUtil redisUtil;
+    private final RedisTemplate<String, Object> redisUtil;
 
     @PostConstruct
     protected void init() { // base64로 인코딩하여 문자열값 secretKey에 저장
@@ -162,7 +162,7 @@ public class JwtTokenProvider {
         return false;
     }
     public boolean checkLogoutToken(String token){
-        Boolean result = redisUtil.getRedisTemplate().hasKey("AT:" + extractUsernameFromToken(token));
+        Boolean result = redisUtil.hasKey("AT:" + extractUsernameFromToken(token));
         log.info("로그아웃한 회원인지 확인하는 중입니다.");
         return result;
     }

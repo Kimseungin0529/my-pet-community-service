@@ -2,7 +2,6 @@ package com.project.pet.user.service;
 
 import com.project.pet.global.auth.JwtTokenProvider;
 import com.project.pet.global.auth.dto.TokenInfo;
-import com.project.pet.global.common.entity.RedisUtil;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
 import com.project.pet.user.dto.UserLogoutRequest;
@@ -27,7 +26,7 @@ public class UserService  {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisUtil redisUtil;
+    private final RedisTemplate<String, Object> redisTemplete;
 
 
 
@@ -61,7 +60,7 @@ public class UserService  {
          * redis에 refresh token 저장! como에서는 jpa data를 활용한 repository를 만들어 저장했지만 여기서는
          * redisTemplate이 제공하는 set 메소드를 통해 직접 저장. 각 방법에 장단점이 있음. 여기서는 빠른 사용을 위해 해당 방법 채택
          */
-        redisUtil.getRedisTemplate().opsForValue()
+        redisTemplete.opsForValue()
                 .set("RT:" + authentication.getName(), tokenInfo.getRefreshToken(), tokenInfo.getRefreshTokenExpirationTime(), TimeUnit.MILLISECONDS);
 
         return tokenInfo;
@@ -70,13 +69,13 @@ public class UserService  {
     public void logout(UserLogoutRequest dto, String token) {
         String refreshToken = dto.getRefreshToken();
         String findUserId = jwtTokenProvider.extractUsernameFromToken(refreshToken);
-        if( redisUtil.getRedisTemplate().opsForValue().get("RT:" + findUserId) != null){
+        if( redisTemplete.opsForValue().get("RT:" + findUserId) != null){
             //act 블랙리스트 저장 -> act 저장 - ("AT:" + name, act, act 만료기간, TimeUnit.MILLISECONDS) /
             long exp = jwtTokenProvider.extractExpirationTimeFromToken(token);
             
             // logout -> act 블랙리스트 저장, rft 삭제
-            redisUtil.getRedisBlackTemplate().opsForValue().set("AT:" + findUserId, token, exp, TimeUnit.MILLISECONDS);
-            redisUtil.getRedisTemplate().delete("RT:" + findUserId);
+            redisTemplete.opsForValue().set("AT:" + findUserId, token, exp, TimeUnit.MILLISECONDS);
+            redisTemplete.delete("RT:" + findUserId);
         }
         
     }
