@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 @Component @Slf4j
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-    public final static long ACCESS_TOKEN_VALIDATION_SECOND = 60 * 60 * 1000L; // 1시간
-    public final static long REFRESH_TOKEN_VALIDATION_SECOND = 60 * 60 * 24 * 7 * 1000L; // 7일
+    public final static long ACCESS_TOKEN_VALIDATION_SECOND = 60 * 20 * 1000L; // 20분
+    public final static long REFRESH_TOKEN_VALIDATION_SECOND = 60 * 60 * 24 * 10 * 1000L; // 10일
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -53,7 +53,6 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(jwtToken)
                 .getBody();
-        //System.out.println("sub -> " + claims.get("sub", String.class));
         return claims.get("sub", String.class); // "sub" 키의 값을 추출
     }
 
@@ -117,7 +116,6 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String accessToken) {
         // 토큰 복호화
         Claims claims = parseClaims(accessToken);
-        log.info("claims = {}", claims);
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
@@ -130,7 +128,6 @@ public class JwtTokenProvider {
 
         // UserDetails 객체를 만들어서 Authentication 리턴
         UserDetails principal = new User(claims.getSubject(), "", authorities);
-        log.info("UsernamePasswordAuthenticationToken = {}", new UsernamePasswordAuthenticationToken(principal, "", authorities));
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
@@ -163,7 +160,6 @@ public class JwtTokenProvider {
     }
     public boolean checkLogoutToken(String token){
         Boolean result = redisUtil.hasKey("AT:" + extractUsernameFromToken(token));
-        log.info("로그아웃한 회원인지 확인하는 중입니다.");
         return result;
     }
 }

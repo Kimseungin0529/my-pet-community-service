@@ -34,9 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("필터 검사 시작. 해당 글 이후, validation에 문제 발생한다면 여기다.");
         if(token != null && jwtTokenProvider.validateToken(token) && !jwtTokenProvider.checkLogoutToken("Bearer "+token)){
             //토큰이 존재하면서 유효하다면 Authentication 객체 생성
-            System.out.println("valdationToken 정상 호출");
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            System.out.println("authentication : " + authentication);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             //시큐리티 컨텍스트 홀더에 Authentication 저장
         }
