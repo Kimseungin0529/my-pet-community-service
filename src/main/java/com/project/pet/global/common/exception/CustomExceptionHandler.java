@@ -1,11 +1,13 @@
 package com.project.pet.global.common.exception;
 
+import com.project.pet.global.auth.LoginFailException;
 import com.project.pet.global.common.dto.DtoErrorResponse;
 import com.project.pet.global.common.dto.ErrorResponse;
 import com.project.pet.global.common.exception.list.DtoNotValidException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,6 +22,7 @@ import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 public class CustomExceptionHandler {
+
 
     /*
        Dto Valid Exception

@@ -2,22 +2,28 @@ package com.project.pet.user.service;
 
 import com.project.pet.global.auth.JwtTokenProvider;
 import com.project.pet.global.auth.dto.TokenInfo;
+import com.project.pet.global.common.exception.ErrorType;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
 import com.project.pet.user.dto.UserLogoutRequest;
+import com.project.pet.user.exception.UserDuplicateException;
 import com.project.pet.user.model.User;
 import com.project.pet.user.repositoy.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
+
+import static com.project.pet.global.common.exception.ErrorType.Conflict.USER_DUPLICATE_CONFLICT;
 
 @Service @Slf4j
 @RequiredArgsConstructor
@@ -33,13 +39,21 @@ public class UserService  {
 
 
     public void signUp(UserCreateRequest dto) {
+        if( checkDuplicateLoginId(dto.getLoginId()) ){
+            throw new UserDuplicateException(USER_DUPLICATE_CONFLICT, "해당 아이디는 이미 존재합니다.");
+        }
+        if( checkDuplicateNickname(dto.getNickname()) ){
+            throw new UserDuplicateException(USER_DUPLICATE_CONFLICT, "해당 닉네임은 이미 존재합니다.");
+        }
+
         User user = User.builder()
-                .name(dto.getName())
+                .nickname(dto.getNickname())
                 .loginId(dto.getLoginId())
                 .password(dto.getPassword())
                 .email(dto.getEmail())
                 .phone(dto.getPhone())
                 .build();
+
         user.encodePassword(passwordEncoder); // security가 제공한 기능을 통해 패스워드 암호화 / 같은 문자열이라도 encode할 때마다 값이 달라지므로 유추가 어렵단 장점
 
         userRepository.save(user);
@@ -50,10 +64,12 @@ public class UserService  {
         // 1. Login ID/PW 를 기반으로 Authentication 객체 생성
         // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(dto.getLoginId(),dto.getPassword());
+        log.info("UsernamePasswordAuthenticationToken = {}", authenticationToken);
 
         // 2. 실제 검증 (사용자 비밀번호 체크)이 이루어지는 부분
         // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        log.info("authentication = {}", authentication);
         TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication); // 토큰 정보 발급
 
 
@@ -83,6 +99,27 @@ public class UserService  {
              * 인증되지 않은 사용자라는 예외처리 필요
              */
         }
-        
+    }
+
+    public Boolean checkDuplicateLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId).isPresent();
+    }
+
+    public Boolean checkDuplicateNickname(String nickname) {
+        return userRepository.findByNickname(nickname).isPresent();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

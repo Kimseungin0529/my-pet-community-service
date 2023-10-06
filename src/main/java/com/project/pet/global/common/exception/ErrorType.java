@@ -1,7 +1,5 @@
 package com.project.pet.global.common.exception;
 
-import lombok.Getter;
-
 public interface ErrorType {
     int getCode();
 
@@ -26,7 +24,8 @@ public interface ErrorType {
     }
 
     enum Unauthorized implements ErrorType {
-        UNAUTHORIZED_DEFAULT(1000)
+        UNAUTHORIZED_DEFAULT(1000),
+        LOGIN_UNAUTHORIZE(1001)
         ;
 
         private final int errorCode;
@@ -74,7 +73,8 @@ public interface ErrorType {
     }
 
     enum Conflict implements ErrorType {
-        CONFLICT_DEFAULT(9000)
+        CONFLICT_DEFAULT(9000),
+        USER_DUPLICATE_CONFLICT(9001)
         ;
 
         private final int errorCode;

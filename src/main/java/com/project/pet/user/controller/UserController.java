@@ -8,6 +8,7 @@ import com.project.pet.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Request;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
@@ -48,11 +49,32 @@ public class UserController {
         return ResponseEntity.ok().body("logout success");
     }
 
+    @GetMapping("/duplicate/login-id/{id}")
+    public ResponseEntity<String> loginIdDuplicate(@PathVariable("id") String loginId){
+        Boolean result = userService.checkDuplicateLoginId(loginId);
+        System.out.println("result = " + result);
+        if(result){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("중복된 id입니다. 다른 id를 사용해주세요.");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("사용 가능한 id입니다.");
+    }
+
+    @GetMapping("/duplicate/nickname/{nickname}")
+    public ResponseEntity<String> nameDuplicate(@PathVariable("nickname") String nickname){
+        Boolean result = userService.checkDuplicateNickname(nickname);
+        if(result){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("중복된 nickname입니다. 다른 nickname을 사용해주세요.");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("사용 가능한 nickname입니다.");
+        /**
+         * 아이디, 닉네임 중복 체크 API를 따로 만듦. 여기는 예외 처리 x / 회원가입하는 과정에서 따로 중복 예외처리해줌.
+         */
+    }
+
     @GetMapping("/ping") // api test 용도
     public String ping(Request request){
         String authorizaion = request.getHeader("Authorizaion");
         //contribution setting 설정 
-
         return "pong";
     }
 
