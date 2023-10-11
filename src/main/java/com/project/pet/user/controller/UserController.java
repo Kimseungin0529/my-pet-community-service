@@ -1,16 +1,15 @@
 package com.project.pet.user.controller;
 
+import com.project.pet.global.auth.dto.ReissueToken;
 import com.project.pet.global.auth.dto.TokenInfo;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
-import com.project.pet.user.dto.UserLogoutRequest;
 import com.project.pet.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Request;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,10 +29,10 @@ public class UserController {
         return ResponseEntity.ok().body("sign-up success");
     }
     @PostMapping("/sign-in") // 로그인은 보안이 중요하므로 get 대신 post 사용(url에 정보 노출 위험 제거) + control url로 의미 명확하게 전달
-    public ResponseEntity<?> userSignIn(@Valid @RequestBody UserLoginRequest dto){
+    public ResponseEntity<TokenInfo> userSignIn(@Valid @RequestBody UserLoginRequest dto){
         TokenInfo tokenInfo = userService.signIn(dto);
 
-        return ResponseEntity.ok().body(tokenInfo.getAccessToken());
+        return ResponseEntity.ok().body(tokenInfo);
     }
 
     @PostMapping("/logout")
@@ -47,6 +46,14 @@ public class UserController {
          * 보안은 다른 방법으로 추후 강화.
          */
         return ResponseEntity.ok().body("logout success");
+    }
+
+    @GetMapping("/reissue")
+    public ResponseEntity<String> userReissueAccessToken(@RequestBody ReissueToken token){
+        String reissue = userService.reissue(token);
+        //System.out.println(token.getAccessToken());
+        //System.out.println(token.getRefreshToken());
+        return ResponseEntity.ok().body(reissue);
     }
 
     @GetMapping("/duplicate/login-id/{id}")

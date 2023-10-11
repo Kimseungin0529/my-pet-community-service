@@ -28,13 +28,13 @@ import java.util.stream.Collectors;
 @Component @Slf4j
 @RequiredArgsConstructor
 public class JwtTokenProvider {
-    public final static long ACCESS_TOKEN_VALIDATION_SECOND = 60 * 20 * 1000L; // 20분
+    public final static long ACCESS_TOKEN_VALIDATION_SECOND = 20 * 60 * 1000L; // 20분
     public final static long REFRESH_TOKEN_VALIDATION_SECOND = 60 * 60 * 24 * 10 * 1000L; // 10일
 
     @Value("${jwt.secret}")
     private String secretKey;
     private Key key;
-    private final String BEARER_PREFIX = "Bearer ";
+    public final static String BEARER_PREFIX = "Bearer ";
 
     private final RedisTemplate<String, Object> redisUtil;
 
@@ -91,7 +91,7 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    private String createRefreshToken(Authentication authentication, long now) {
+    public String createRefreshToken(Authentication authentication, long now) {
         String refreshToken = BEARER_PREFIX + Jwts.builder()
                 .setSubject(authentication.getName())
                 .setExpiration(new Date(now + REFRESH_TOKEN_VALIDATION_SECOND))
@@ -101,7 +101,7 @@ public class JwtTokenProvider {
         return refreshToken;
     }
 
-    private String createAccessToken(Authentication authentication, String authorities, long now) {
+    public String createAccessToken(Authentication authentication, String authorities, long now) {
         String accessToken = BEARER_PREFIX + Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -110,6 +110,18 @@ public class JwtTokenProvider {
                 .compact();
 
         return accessToken;
+    }
+
+    public String reissueAccessToken(String userId, long now) {
+        String accessToken = BEARER_PREFIX + Jwts.builder()
+                .setSubject(userId)
+                .claim("auth", "일반사용자")
+                .setExpiration(new Date(now + ACCESS_TOKEN_VALIDATION_SECOND))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        return accessToken;
+
     }
 
     // JWT 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
@@ -127,11 +139,12 @@ public class JwtTokenProvider {
                         .collect(Collectors.toList());
 
         // UserDetails 객체를 만들어서 Authentication 리턴
+        // password가 없는데 이렇게 작성하면 보안 문제가 발생할 거 같음. 나중에 확인해 보자.
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
-    private Claims parseClaims(String accessToken) {
+    public Claims parseClaims(String accessToken) {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
         } catch (ExpiredJwtException e) {
@@ -162,4 +175,6 @@ public class JwtTokenProvider {
         Boolean result = redisUtil.hasKey("AT:" + extractUsernameFromToken(token));
         return result;
     }
+
+
 }

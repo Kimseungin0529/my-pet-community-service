@@ -20,33 +20,33 @@ import java.io.IOException;
  * OncePerRequestFilter는 GenericFilterBean를 상속받아 구현한 필터이다.
  */
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProvider jwtTokenProvider;
+        private final JwtTokenProvider jwtTokenProvider;
 
-    // Request로 들어오는 Jwt Token의 유효성을 검증하는 filter를 filterChain에 등록합니다.
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response
-            , FilterChain filterChain) throws ServletException, IOException {
+        // Request로 들어오는 Jwt Token의 유효성을 검증하는 filter를 filterChain에 등록합니다.
+        @Override
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response
+                , FilterChain filterChain) throws ServletException, IOException {
 
-        String token = resolveToken(request);
-        // Authorization 헤더에 있는 jwt 가져오기
-        System.out.println("필터 검사 시작. 해당 글 이후, validation에 문제 발생한다면 여기다.");
-        if(token != null && jwtTokenProvider.validateToken(token) && !jwtTokenProvider.checkLogoutToken("Bearer " + token)){
-            //토큰이 존재하면서 유효하다면 Authentication 객체 생성
-            Authentication authentication = jwtTokenProvider.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            //시큐리티 컨텍스트 홀더에 Authentication 저장
+            String token = resolveToken(request);
+            // Authorization 헤더에 있는 jwt 가져오기
+            System.out.println("필터 검사 시작. 해당 글 이후, validation에 문제 발생한다면 여기다.");
+            if(token != null && jwtTokenProvider.validateToken(token) && !jwtTokenProvider.checkLogoutToken("Bearer " + token)){
+                //토큰이 존재하면서 유효하다면 Authentication 객체 생성
+                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                //시큐리티 컨텍스트 홀더에 Authentication 저장
+            }
+            filterChain.doFilter(request,response);
+            //doFilter는 서블릿 실행 메서드로 해당 메소드 기준으로 서블릿 실행 전후 로직
         }
-        filterChain.doFilter(request,response);
-        //doFilter는 서블릿 실행 메서드로 해당 메소드 기준으로 서블릿 실행 전후 로직
-    }
-    // Request Header 에서 토큰 정보 추출
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
-            return bearerToken.substring(7);
+        // Request Header 에서 토큰 정보 추출
+        private String resolveToken(HttpServletRequest request) {
+            String bearerToken = request.getHeader("Authorization");
+            if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")) {
+                return bearerToken.substring(7);
+            }
+            return null;
         }
-        return null;
-    }
 }

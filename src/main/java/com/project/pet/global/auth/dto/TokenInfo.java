@@ -1,11 +1,9 @@
 package com.project.pet.global.auth.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class TokenInfo {

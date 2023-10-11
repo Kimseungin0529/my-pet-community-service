@@ -1,26 +1,26 @@
 package com.project.pet.user.service;
 
 import com.project.pet.global.auth.JwtTokenProvider;
+import com.project.pet.global.auth.dto.ReissueToken;
 import com.project.pet.global.auth.dto.TokenInfo;
-import com.project.pet.global.common.exception.ErrorType;
 import com.project.pet.user.dto.UserCreateRequest;
 import com.project.pet.user.dto.UserLoginRequest;
-import com.project.pet.user.dto.UserLogoutRequest;
 import com.project.pet.user.exception.UserDuplicateException;
 import com.project.pet.user.model.User;
 import com.project.pet.user.repositoy.UserRepository;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static com.project.pet.global.common.exception.ErrorType.Conflict.USER_DUPLICATE_CONFLICT;
@@ -70,6 +70,11 @@ public class UserService  {
         // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         log.info("authentication = {}", authentication);
+
+        // 로그아웃하는 경우 해당 act를 통해 "AT:사용자아이디"로 redis에 저장했음(블랙리스트). -> 인가 권한을 막기 위해
+        // 로그인 성공 시, 블랙리스트에 키 값이 있다면 해당 정보를 삭제해주자. (JwtAuthenticationFilter에서 "AT:아이디" key 가 존재하면 접근 불가로 지정)
+        checkActBlackList(authentication);
+
         TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication); // 토큰 정보 발급
 
 
@@ -84,12 +89,23 @@ public class UserService  {
         return tokenInfo;
     }
 
+    private void checkActBlackList(Authentication authentication) {
+        if(redisTemplete.hasKey("AT:" + authentication.getName())){
+            log.info("블랙리스트에 존재");
+            redisTemplete.delete("AT:" + authentication.getName());
+            log.info("블랙리스트에 있는 \"AT:사용자아이디\" 삭제완료");
+        }
+        else {
+            log.info("해당 아이디에 대한 블랙리스트는 존재하지 않는다.");
+        }
+    }
+
     public void logout(String token) {
         String findUserId = jwtTokenProvider.extractUsernameFromToken(token);
         if( redisTemplete.opsForValue().get("RT:" + findUserId) != null){
             //act 블랙리스트 저장 -> act 저장 - ("AT:" + name, act, act 만료기간, TimeUnit.MILLISECONDS) /
             long exp = jwtTokenProvider.extractExpirationTimeFromToken(token);
-            
+
             // logout -> act 블랙리스트 저장, rft 삭제
             redisTemplete.opsForValue().set("AT:" + findUserId, token, exp, TimeUnit.MILLISECONDS);
             redisTemplete.delete("RT:" + findUserId);
@@ -100,6 +116,58 @@ public class UserService  {
              */
         }
     }
+    /**
+     * act 만료로 인해 재발급이 필요한 상황
+     * 1. rft이 존재한다면 act을 재발급
+     * 2. rtf이 존재하지 않는다면 로그인 필요
+     *  예외처리 -> rtf 존재x, 로그인 필요
+     *
+     *
+     */
+    public String reissue(ReissueToken token) {
+        String result = null;
+        //log.info("token 값 확인 = {}", token.getRefreshToken());
+        String originRefreshToken = token.getRefreshToken();
+        String resolvedToken = token.getRefreshToken().substring(7);
+        /*if (StringUtils.hasText(token) && token.startsWith("Bearer")) {
+            resolvedToken = token.substring(7);
+        }*/
+        System.out.println(resolvedToken);
+        //log.info("resolvedToken 값 재확인 = {}", resolvedToken);
+        Claims claims = jwtTokenProvider.parseClaims(resolvedToken);
+        String loginId = (String)claims.get("sub");
+        //System.out.println("loginId : " + loginId);
+        String redisRft = (String) redisTemplete.opsForValue().get("RT:" + loginId); // 존재하지 않는다면 null 반환
+
+        //System.out.println("redisRft = " +redisRft);
+        //System.out.println("originRefreshToken = " + originRefreshToken);
+        //System.out.println(redisRft.equals(originRefreshToken));
+        //클린 코드인가를 묻냐면 아닌 거 같다. 내 수준이 매우 낮으니 버그 발생이 없는 것을 목표로 빠르게 작성하고 리팩토링은 추후에 하자.
+
+        // 아직 남아있는 redisRft가 있다면 redisRft와  rft를 비교, 사실 보안적으로 큰 향상은 없어 보이나 안 한 것보다 나으므로 적용
+        if( redisTemplete.opsForValue().get("RT:" + loginId) != null && redisRft.equals(originRefreshToken)){
+            long now = new Date().getTime();
+            String reissueAct = jwtTokenProvider.reissueAccessToken(loginId, now);
+            /**
+             *
+             * 사실 이 재발급 과정은 매우 좋지 않다. jwtProvider이 제공하는 createAccessToken()이 있는데도 파라미터 변수가 매칭이 되지 않아
+             * 같은 기능의 코드를 파라미터만 바꿔 다시 만들었다. 마치 오버라이딩과 같이 사용했지만 중복된 코드이므로 가독성을 떨어뜨린다.
+             * 또한 형식도 Authentication을 통해 사용자 아이디와 역할(Role)을 얻는 것이 아니라 직접 아이디 값을 넣어주고
+             * reissueAccessToken() 내부에서 "일반 사용자"라고 고정하여 재생성한다.
+             * 만약 "일반 사용자"가 아닌 "관리자"인 경우에 의도치 않은 버그가 발생한다.
+             *
+             * 그런데도 이렇게 작성한 이유는? 완벽하게 하나씩 지식을 나의 것으로 확장시키는 것이 맞다고 생각하지만 조바심 떄문인지
+             * 빠르게 프로젝트를 완성시키고 리팩토링하려고 한다. 구글링으로는 원하는 지식을 빠르게 습득하기 어렵다고 판단하여(구글링 기술부족같음)
+             * 추후 강의 또는 세션을 통해 빠르게 리팩토링하겠다.
+             */
+            result = reissueAct;
+        }
+        if(result == null){
+            throw new IllegalArgumentException("저장된 rtf이 없거나 일치하지 않습니다.");
+        }
+
+        return result;
+    }
 
     public Boolean checkDuplicateLoginId(String loginId) {
         return userRepository.findByLoginId(loginId).isPresent();
@@ -108,6 +176,8 @@ public class UserService  {
     public Boolean checkDuplicateNickname(String nickname) {
         return userRepository.findByNickname(nickname).isPresent();
     }
+    
+    
 }
 
 
