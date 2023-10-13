@@ -11,11 +11,14 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @Embeddable @Getter
 public class Pet {
 
+    @Column(name = "pet_name")
     private String name;
 
+    @Column(name = "pet_species")
     @Enumerated(value = STRING)
     private Species species;
 
+    @Column(name = "pet_gender")
     @Enumerated(value = STRING)
     private Gender gender;
 

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Request;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -45,8 +47,7 @@ public class UserController {
     @GetMapping("/reissue")
     public ResponseEntity<String> userReissueAccessToken(@RequestBody ReissueToken token){
         String reissue = userService.reissue(token);
-        //System.out.println(token.getAccessToken());
-        //System.out.println(token.getRefreshToken());
+
         return ResponseEntity.ok().body(reissue);
     }
 
@@ -78,5 +79,12 @@ public class UserController {
         //contribution setting 설정 
         return "pong";
     }
+
+    // Pet
+    /*@PostMapping("/{user-id}/pet")
+    public ResponseEntity<?> create(@PathVariable("user-id") ){
+
+        return null;
+    }*/
 
 }
