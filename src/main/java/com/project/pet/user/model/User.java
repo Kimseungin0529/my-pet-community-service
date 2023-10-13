@@ -1,5 +1,6 @@
 package com.project.pet.user.model;
 
+import com.project.pet.user.model.pet.Pet;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -42,6 +43,8 @@ public class User implements UserDetails {
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 
+    @Embedded
+    private Pet pet;
 
 
     // 패스워드 암호화, 복화호 확인

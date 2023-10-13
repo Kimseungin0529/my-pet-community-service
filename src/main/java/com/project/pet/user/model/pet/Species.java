@@ -1,4 +1,4 @@
-package com.project.pet.pet.model;
+package com.project.pet.user.model.pet;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
