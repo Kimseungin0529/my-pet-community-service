@@ -1,4 +1,4 @@
-package com.project.pet.user.dto;
+package com.project.pet.user.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

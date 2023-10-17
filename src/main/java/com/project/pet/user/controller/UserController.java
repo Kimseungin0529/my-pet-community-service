@@ -1,9 +1,11 @@
 package com.project.pet.user.controller;
 
+import com.project.pet.global.auth.UserAthentication;
 import com.project.pet.global.auth.dto.ReissueToken;
 import com.project.pet.global.auth.dto.TokenInfo;
-import com.project.pet.user.dto.UserCreateRequest;
-import com.project.pet.user.dto.UserLoginRequest;
+import com.project.pet.user.dto.pet.PetRequset;
+import com.project.pet.user.dto.user.UserCreateRequest;
+import com.project.pet.user.dto.user.UserLoginRequest;
 import com.project.pet.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +13,6 @@ import org.apache.coyote.Request;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -81,10 +82,11 @@ public class UserController {
     }
 
     // Pet
-    /*@PostMapping("/{user-id}/pet")
-    public ResponseEntity<?> create(@PathVariable("user-id") ){
-
-        return null;
-    }*/
+    @PostMapping("/pet")
+    public ResponseEntity<?> userSettingPet(@UserAthentication String loginId,
+                                            @RequestBody PetRequset petRequset){
+        userService.settingPet(loginId, petRequset);
+        return ResponseEntity.ok().body("settingPet success");
+    }
 
 }

@@ -54,14 +54,6 @@ public class User implements UserDetails {
     public Boolean matchePassword(PasswordEncoder passwordEncoder, String password){
         return passwordEncoder.matches(password, getPassword());
     }
-    /*@Builder
-    public User(String nickname, String loginId, String password, String email, String phone) {
-        this.nickname = nickname;
-        this.loginId = loginId;
-        this.password = password;
-        this.email = email;
-        this.phone = phone;
-    }*/
 
     //UserDetail 메소드
     @Override
@@ -93,5 +85,9 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void settingPet(Pet pet){
+        this.pet = pet;
     }
 }

@@ -1,11 +1,9 @@
 package com.project.pet.user;
 
 import com.google.gson.Gson;
-import com.project.pet.global.auth.JwtTokenProvider;
-import com.project.pet.global.auth.dto.TokenInfo;
 import com.project.pet.user.controller.UserController;
-import com.project.pet.user.dto.UserCreateRequest;
-import com.project.pet.user.dto.UserLoginRequest;
+import com.project.pet.user.dto.user.UserCreateRequest;
+import com.project.pet.user.dto.user.UserLoginRequest;
 import com.project.pet.user.service.UserService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,10 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;

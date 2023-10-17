@@ -3,10 +3,15 @@ package com.project.pet.user.service;
 import com.project.pet.global.auth.JwtTokenProvider;
 import com.project.pet.global.auth.dto.ReissueToken;
 import com.project.pet.global.auth.dto.TokenInfo;
-import com.project.pet.user.dto.UserCreateRequest;
-import com.project.pet.user.dto.UserLoginRequest;
+import com.project.pet.user.dto.pet.PetRequset;
+import com.project.pet.user.dto.user.UserCreateRequest;
+import com.project.pet.user.dto.user.UserLoginRequest;
 import com.project.pet.user.exception.UserDuplicateException;
+import com.project.pet.user.exception.UserNotFoundException;
 import com.project.pet.user.model.User;
+import com.project.pet.user.model.pet.Gender;
+import com.project.pet.user.model.pet.Pet;
+import com.project.pet.user.model.pet.Species;
 import com.project.pet.user.repositoy.UserRepository;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +23,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -156,8 +160,25 @@ public class UserService  {
     public Boolean checkDuplicateNickname(String nickname) {
         return userRepository.findByNickname(nickname).isPresent();
     }
-    
-    
+
+
+    /*
+       pet
+    */
+    public void settingPet(String loginId, PetRequset petRequset) {
+        User findUser = userRepository.findByLoginId(loginId).orElseThrow(() -> new UserNotFoundException());
+        String name = petRequset.getName();
+        Species species = Species.of(petRequset.getSpecies());
+        Gender gender = Gender.of(petRequset.getGender());
+
+        Pet pet = Pet.builder()
+                .name(name)
+                .species(species)
+                .gender(gender)
+                .build();
+
+        findUser.settingPet(pet);
+    }
 }
 
 

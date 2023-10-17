@@ -57,7 +57,10 @@ public interface ErrorType {
     }
 
     enum NotFound implements ErrorType {
-        NOT_FOUND_DEFAULT(4000)
+        NOT_FOUND_DEFAULT(4000),
+        USER_NOT_FOUND(4001),
+        PET_SPECIES_NOT_FOUND(4002),
+        PET_GENDER_NOT_FOUND(4003)
         ;
 
         private final int errorCode;
