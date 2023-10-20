@@ -24,7 +24,7 @@ public class Comment {
     @Column(nullable = false)
     private String content;
 
-    public void registPost(Post post) {
+    public void registerPost(Post post) {
         this.post = post;
     }
 

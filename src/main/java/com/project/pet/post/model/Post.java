@@ -28,15 +28,25 @@ public class Post {
     private String content;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE) // 삭제 외는 영속성 전이 필요성을 느끼지 못함. 추후 느끼면 리팩토링
-    private List<Comment> replies = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 
-    private int heart;
+    private int heartCount  ;
+
+    private int readCount;
 
     @Enumerated(value = STRING)
     private Category category;
 
-    public void addReply(Comment comment){ // 연관관계 편의 메소드
-        this.replies.add(comment);
-        comment.registPost(this);
+    @Enumerated(value = STRING)
+    private AnimalGroup animalGroup;
+
+    @Enumerated(value = STRING)
+    private AnimalProduct animalProduct;
+
+
+
+    public void addComments(Comment comment){ // 연관관계 편의 메소드
+        this.comments.add(comment);
+        comment.registerPost(this);
     }
 }
