@@ -3,6 +3,7 @@ package com.project.pet.post.model;
 import com.project.pet.comment.model.Comment;
 import com.project.pet.user.model.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -42,6 +43,16 @@ public class Post {
 
     @Enumerated(value = STRING)
     private AnimalProduct animalProduct;
+
+    @Builder
+    public Post(User user, String title, String content, Category category, AnimalGroup animalGroup, AnimalProduct animalProduct) {
+        this.user = user;
+        this.title = title;
+        this.content = content;
+        this.category = category;
+        this.animalGroup = animalGroup;
+        this.animalProduct = animalProduct;
+    }
 
 
 

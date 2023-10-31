@@ -1,5 +1,7 @@
 package com.project.pet.post.controller;
 
+import com.project.pet.comment.service.CommentService;
+import com.project.pet.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -10,8 +12,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/v1/posts")
 public class PostController {
 
+    private final PostService postService;
+    private final CommentService commentService;
+
     @PostMapping("/")
     public ResponseEntity<?> createPost(){
+
+
         return null;
     }
     // 수정
@@ -30,7 +37,7 @@ public class PostController {
         return null;
     }
     // 삭제
-    @DeleteMapping("/{{post-id}-id}")
+    @DeleteMapping("/{post-id}-id")
     public ResponseEntity<?> removePost(){
         return null;
     }

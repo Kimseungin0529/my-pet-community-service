@@ -1,6 +1,7 @@
 package com.project.pet.post.service;
 
 import com.project.pet.comment.dto.CommentResponse;
+import com.project.pet.post.dto.PostCreateRequest;
 import com.project.pet.post.dto.PostDetailResponse;
 import com.project.pet.post.dto.PostTotalResponse;
 import com.project.pet.post.repository.PostRepository;
@@ -14,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
     private final PostRepository postRepository;
 
-    public void createPost(){
+    public void createPost(PostCreateRequest postCreateRequest){
+
+        return;
     }
 
     public PostDetailResponse modifyPost(){
