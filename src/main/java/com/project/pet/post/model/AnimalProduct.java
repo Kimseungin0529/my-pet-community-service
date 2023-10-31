@@ -4,9 +4,12 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter @RequiredArgsConstructor
-public enum Category {
-    COMUNITY( "커뮤니티"),
-    DEAL("거래");
+public enum AnimalProduct {
+
+    HARNESSES("하네스"),
+    LEASHES("목줄)"),
+    CLOTHES("옷"),
+    TOYS("장난감");
 
     private final String text;
 }
