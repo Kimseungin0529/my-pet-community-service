@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class PetApplication {
 
 	public static void main(String[] args) {
-		//commit  test 2222
+		//test
 		SpringApplication.run(PetApplication.class, args);
 	}
 
