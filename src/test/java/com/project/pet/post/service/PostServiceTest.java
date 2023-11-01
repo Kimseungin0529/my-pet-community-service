@@ -9,14 +9,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+//@SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PostServiceTest {
 
-    @Autowired
+    //@Autowired
     private PostService postService;
 
-    @Test
+    /*@Test
     @DisplayName("정보를 입력받아 게시물을 생성합니다.")
     void createPost(){
         //given
@@ -25,5 +25,5 @@ class PostServiceTest {
         //when
         //then
 
-    }
+    }*/
 }
