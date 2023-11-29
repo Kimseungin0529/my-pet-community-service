@@ -21,5 +21,14 @@ public class Manner {
     private User evaluator;
 
     @Column(nullable = false)
-    private int score;
+    private double score;
+
+    public void settingAppicant(User user){
+        this.applicant = user;
+        user.getManners().add(this);
+    }
+    public void settingEvaluator(User user){
+        this.evaluator = user;
+    }
+
 }

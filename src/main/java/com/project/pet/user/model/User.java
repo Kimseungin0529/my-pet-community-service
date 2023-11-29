@@ -1,5 +1,6 @@
 package com.project.pet.user.model;
 
+import com.project.pet.manner.model.Manner;
 import com.project.pet.user.model.pet.Pet;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity @Getter
@@ -36,8 +39,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String phone;
 
-
-    private Long manner;
+    @OneToMany(fetch = LAZY, cascade = REMOVE, mappedBy = "applicant")
+    private List<Manner> manners;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
